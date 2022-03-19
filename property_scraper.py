@@ -105,7 +105,7 @@ def main():
         c.execute(configs.COMPUTATION_STATEMENT, computations_values)
 
         max_length = max([len(item) for item in materials.values()])
-        for row in zip(*list(materials.values())):
+        for row in list(materials.values()):
             row_length = len(row)
             if row_length < max_length:
                 pad = max_length = row_length
