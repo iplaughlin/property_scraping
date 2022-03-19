@@ -34,8 +34,8 @@ def main():
 
         tax = table_information_two(soup, "collapseTaxInfo")
 
-        details = table_information_three(soup, "collapseSummaryDetailInfo")
         tax_history = table_information_three(soup, "collapseTaxHistory")
+        details = table_information_three(soup, "collapseSummaryDetailInfo")
 
         building_components = table_information_four(
             soup, "collapseSummaryBuildingComponents"

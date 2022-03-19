@@ -143,6 +143,11 @@ def table_information_three(soup, div_id_name) -> dict:
                 == "\nYEAR\nOWNER(S)\nTOTAL TAX\nPAID (Y/N)\nAPPRAISED\nASSESSED\n"
             ):
                 rows.append([item for item in re.split("\n|\r", i.text)])
+            elif (
+                i.text
+                == "\nTYPE\nREF\nDESCRIPTION\nLAND USE\nTC\nHS\nPN\nAPPRAISED VALUE\n"
+            ):
+                rows.append([item for item in re.split("\n|\r", i.text)])
             else:
                 rows.append([item.text for item in i.find_all("td")])
             # print(repr(i.text))
