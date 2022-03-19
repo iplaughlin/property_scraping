@@ -27,8 +27,10 @@ def main():
     for ppin in range(1, 10001):
         print(ppin)
         url = f"https://madisonproperty.countygovservices.com/Property/Property/Summary?taxyear=2022&ppin={ppin}"
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0"}
-        resp = requests.get(url, headers = headers)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0"
+        }
+        resp = requests.get(url, headers=headers)
         time.sleep(0.5)
         soup = BeautifulSoup(resp.text, "html.parser")
         parcel_info = table_information_one(soup, "collapseParcelInfo")
@@ -43,7 +45,6 @@ def main():
         tax = table_information_two(soup, "collapseTaxInfo")
         if tax == {}:
             tax = {column: "" for column in columns.TAX_COLUMNS}
-
         tax_history = table_information_three(soup, "collapseTaxHistory")
         details = table_information_three(soup, "collapseSummaryDetailInfo")
 
@@ -54,7 +55,7 @@ def main():
         computations = building_components.get("computations")
         materials = building_components.get("materials")
 
-        gis_url= f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}"
+        gis_url = f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}"
 
         temp_dict[ppin] = {
             "ppin": ppin,
@@ -68,7 +69,7 @@ def main():
             "improvement": improvement,
             "computations": computations,
             "materials": materials,
-            "gis_url": f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}"
+            "gis_url": f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}",
         }
         conn = create_sql_connection(
             user=configs.USER,
@@ -93,10 +94,8 @@ def main():
 
         for row in zip(*list(tax_history.values())):
             c.execute(configs.TAX_HISTORY_STATEMENT, row + tuple(date))
-
         for row in zip(*list(details.values())):
             c.execute(configs.DETAILS_STATEMENT, row + tuple(date))
-
         improvement_values = list(improvement.values()) + date
         improvement_values = tuple(improvement_values)
         c.execute(configs.IMPROVEMENTS_STATEMENT, improvement_values)
@@ -105,11 +104,17 @@ def main():
         computations_values = tuple(computations_values)
         c.execute(configs.COMPUTATION_STATEMENT, computations_values)
 
+        max_length = max([len(item) for item in materials.values()])
         for row in zip(*list(materials.values())):
+            row_length = len(row)
+            if row_length < max_length:
+                pad = max_length = row_length
+                row += [""] * pad
             c.execute(configs.MATERIALS_STATEMENT, row + tuple(date))
-
-        urls_values = (url, gis_url)+tuple(date)
+        urls_values = (url, gis_url) + tuple(date)
         c.execute(configs.URLS_STATEMENT, urls_values)
+
+
 #        conn.commit()
 
 
