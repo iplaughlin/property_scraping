@@ -205,6 +205,7 @@ def table_information_four(soup, div_id_name) -> dict:
                     cols = row.find_all("td")
                     cols = [element.text.strip() for element in cols if element]
                     table.extend(cols)
+                    table = [item for item in table if not ""]
                 else:
                     pass
     it = iter(table)
@@ -214,6 +215,8 @@ def table_information_four(soup, div_id_name) -> dict:
     }
     if improvement == {}:
         improvement = {column: "" for column in improvement_columns}
+    # for column in improvement_columns:
+    #     del test_dict[column]
     computations = {
         key: value
         for key, value in test_dict.items()
