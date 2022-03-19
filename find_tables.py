@@ -30,7 +30,7 @@ def find_tables(table_list: list, url: str, ppin: int) -> dict:
     subdivision_table = None
     tax_table = None
     materials_table = None
-    for table in all_tables:
+    for table in table_list:
         try:
             if (
                 sum(
