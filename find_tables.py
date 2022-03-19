@@ -16,12 +16,6 @@ from columns import (
     MATERIALS_COLUMNS,
 )
 
-ppin = 1
-resp = requests.get(
-    f"https://madisonproperty.countygovservices.com/Property/Property/Summary?taxyear=2022&ppin={ppin}"
-)
-all_tables = pd.read_html(resp.text)
-
 
 def transpose_table(table: pd.DataFrame) -> pd.DataFrame:
     try:
