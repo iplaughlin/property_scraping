@@ -110,7 +110,8 @@ def main():
             if row_length < max_length:
                 pad = max_length = row_length
                 row += [""] * pad
-            c.execute(configs.MATERIALS_STATEMENT, row + date)
+            if row_lenth == max_length and row_length != 0:
+                c.execute(configs.MATERIALS_STATEMENT, row + date)
         urls_values = (url, gis_url) + tuple(date)
         c.execute(configs.URLS_STATEMENT, urls_values)
 
