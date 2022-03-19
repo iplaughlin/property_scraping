@@ -18,6 +18,7 @@ from find_tables import (
     table_information_four,
 )
 from create_connection import create_sql_connection
+import columns
 
 
 def main():
@@ -26,14 +27,22 @@ def main():
     for ppin in range(1, 10001):
         print(ppin)
         url = f"https://madisonproperty.countygovservices.com/Property/Property/Summary?taxyear=2022&ppin={ppin}"
-        resp = requests.get(url)
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0"}
+        resp = requests.get(url, headers = headers)
         time.sleep(0.5)
         soup = BeautifulSoup(resp.text, "html.parser")
         parcel_info = table_information_one(soup, "collapseParcelInfo")
+        if parcel_info == {}:
+            parcel_info = {column, "" for column in columns.PARCEL_INFO_COLUMNS}
         property_values = table_information_one(soup, "collapseSummaryPropertyValues")
+        if property_values == {}:
+            property_values = {column, "" for column in columns.PROPERTY_COLUMNS}
         subdivision = table_information_one(soup, "collapseSummarySubdivision")
-
+        if subdivision == {}:
+            subdivision = {column, "" for column in columns.SUBDIVISION_COLUMNS}
         tax = table_information_two(soup, "collapseTaxInfo")
+        if tax == {}:
+            tax = {column, "" for column in columns.TAX_COLUMNS}
 
         tax_history = table_information_three(soup, "collapseTaxHistory")
         details = table_information_three(soup, "collapseSummaryDetailInfo")

@@ -17,6 +17,16 @@ PARCEL_INFO_COLUMNS = [
     "TAX DISTRICT",
 ]
 
+PROPERTY_COLUMNS = [
+    "Total Acres",
+    "Use Value",
+    "Land Value",
+    "Improvement Value",
+    "Total Appraised Value",
+    "Total Taxable Value",
+    "Assessment Value",
+]
+
 VALUE_INFO_COLUMNS = [
     "Total Acres",
     "Use Value",
@@ -36,7 +46,6 @@ SUBDIVISION_COLUMNS = [
     "Block",
     "Type / Book / Page",
     "S/T/R",
-    "DEED SEARCH",
 ]
 
 MATERIALS_COLUMNS = [
