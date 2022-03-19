@@ -23,11 +23,11 @@ from create_connection import create_sql_connection
 def main():
 
     temp_dict = dict()
-    for ppin in range(1, 501):
+    for ppin in range(1, 2):
         url = f"https://madisonproperty.countygovservices.com/Property/Property/Summary?taxyear=2022&ppin={ppin}"
         resp = requests.get(url)
         time.sleep(0.5)
-        soup = BeautifulSoup(resp.text)
+        soup = BeautifulSoup(resp.text, "html.parser")
         parcel_info = table_information_one(soup, "collapseParcelInfo")
         property_values = table_information_one(soup, "collapseSummaryPropertyValues")
         subdivision = table_information_one(soup, "collapseSummarySubdivision")
@@ -56,7 +56,31 @@ def main():
             "computations": computations,
             "materials": materials,
         }
-        print(ppin)
+        conn = create_sql_connection(user = configs.USER, password = configs.PASSWORD, host = configs.HOST, database = configs.DATABASE)
+        c = conn.cursor()
+        date = [str(datetime.datetime.now())]
+        parcel_values = list(parcel_info.values())+ date
+        c.execute(configs.PARCEL_STATEMENT, parcel_values)
+
+        property_values = list(property_values.values())+date
+        c.execute(configs.PROPERTY_VALUES_STATEMENT, property_values)
+
+        subdivision_values = list(subdivision.values()) + date
+        c.execute(configs.SUBDIVISION_STATEMENT, subdivision_values)
+
+        tax_values = [str(item) for item in tax.values()] + date
+        tax_values = tuple(tax_values)
+        c.execute(configs.TAX_STATEMENT, tax_values)
+
+#        tax_history_values = list(tax_history.values()) + date
+#        tax_history_values = tuple(tax_history_values)
+#        c.execute(configs.TAX_HISTORY_STATEMENT, tax_history_values)
+
+        improvement_values = list(improvement.values()) + date
+        print(improvement_values)
+        improvement_values = tuple(improvement_values)
+        c.execute(configs.IMPROVEMENTS_STATEMENT, improvement_values)
+#        conn.commit()
 
 
 if __name__ == "__main__":

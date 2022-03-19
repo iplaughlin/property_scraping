@@ -101,14 +101,14 @@ def table_information_one(soup, div_id_name: str = None) -> dict:
     table = []
     for x in soup.find_all("div", {"id": div_id_name}):
         for div in x.find_all("div"):
-            # if div.text.lower() == div_text.lower():
-
             for row in x.find_all("tr"):
                 cols = row.find_all("td")
                 cols = [element.text.strip() for element in cols if element]
                 table.extend(cols)
     it = iter(table)
     test_dict = dict(zip(it, it))
+    if test_dict.get(''):
+        del test_dict['']
     return test_dict
 
 
