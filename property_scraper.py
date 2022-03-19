@@ -33,16 +33,16 @@ def main():
         soup = BeautifulSoup(resp.text, "html.parser")
         parcel_info = table_information_one(soup, "collapseParcelInfo")
         if parcel_info == {}:
-            parcel_info = {column, "" for column in columns.PARCEL_INFO_COLUMNS}
+            parcel_info = {column: "" for column in columns.PARCEL_INFO_COLUMNS}
         property_values = table_information_one(soup, "collapseSummaryPropertyValues")
         if property_values == {}:
-            property_values = {column, "" for column in columns.PROPERTY_COLUMNS}
+            property_values = {column: "" for column in columns.PROPERTY_COLUMNS}
         subdivision = table_information_one(soup, "collapseSummarySubdivision")
         if subdivision == {}:
-            subdivision = {column, "" for column in columns.SUBDIVISION_COLUMNS}
+            subdivision = {column: "" for column in columns.SUBDIVISION_COLUMNS}
         tax = table_information_two(soup, "collapseTaxInfo")
         if tax == {}:
-            tax = {column, "" for column in columns.TAX_COLUMNS}
+            tax = {column: "" for column in columns.TAX_COLUMNS}
 
         tax_history = table_information_three(soup, "collapseTaxHistory")
         details = table_information_three(soup, "collapseSummaryDetailInfo")
