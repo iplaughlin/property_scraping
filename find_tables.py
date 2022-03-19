@@ -5,8 +5,8 @@ Created on Fri Mar 18 16:57:49 2022
 @author: iaala
 """
 
-import requests
-import pandas as pd
+import re
+from collections import defaultdict
 import datetime
 from columns import (
     PARCEL_INFO_COLUMNS,
@@ -17,7 +17,7 @@ from columns import (
 )
 
 
-def transpose_table(table: pd.DataFrame) -> pd.DataFrame:
+def transpose_table(table):
     try:
         return table.set_index(0).transpose()
     except KeyError:
@@ -25,6 +25,8 @@ def transpose_table(table: pd.DataFrame) -> pd.DataFrame:
 
 
 def find_tables(table_list: list, url: str, ppin: int) -> dict:
+    import pandas as pd
+
     parcel_table = None
     value_table = None
     subdivision_table = None
@@ -86,4 +88,137 @@ def find_tables(table_list: list, url: str, ppin: int) -> dict:
         "date_time_collected": str(datetime.datetime.now()),
         "url": url,
         "gis_url": f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}",
+    }
+
+
+def table_information_one(soup, div_id_name: str = None) -> dict:
+    """ first method for bringing back table information as a dict.
+    works on:
+        parcelInfo
+        SummaryPropertyValues
+        SummarySubdivision
+    """
+    table = []
+    for x in soup.find_all("div", {"id": div_id_name}):
+        for div in x.find_all("div"):
+            # if div.text.lower() == div_text.lower():
+
+            for row in x.find_all("tr"):
+                cols = row.find_all("td")
+                cols = [element.text.strip() for element in cols if element]
+                table.extend(cols)
+    it = iter(table)
+    test_dict = dict(zip(it, it))
+    return test_dict
+
+
+def table_information_two(soup, div_id_name) -> dict:
+    """ second method for bringing back table information as a dict.
+    works on:
+        TaxInfo
+
+    """
+    temp_dict = dict()
+    for x in soup.find_all("div", {"id": div_id_name}):
+        headers = x.find_all("th")
+        headers = [item.string for item in headers]
+        values = x.find_all("td")
+        values = [item.string for item in values]
+        temp_dict = dict(zip(headers, values))
+    return temp_dict
+
+
+def table_information_three(soup, div_id_name) -> dict:
+    """ third method for bringing back table information as a dict.
+    works on:
+        SummaryDetailInfo
+
+    """
+    temp_dict = defaultdict(list)
+    if soup.find("div", {"id": div_id_name}):
+        rows = []
+        for i in soup.find("div", {"id": div_id_name}).find_all("tr"):
+            if (
+                i.text
+                == "\nYEAR\nOWNER(S)\nTOTAL TAX\nPAID (Y/N)\nAPPRAISED\nASSESSED\n"
+            ):
+                rows.append([item for item in re.split("\n|\r", i.text)])
+            else:
+                rows.append([item.text for item in i.find_all("td")])
+            # print(repr(i.text))
+        headers = [item for item in rows[0] if item]
+        for row in rows[1:]:
+            row = [item for item in row if item]
+            x = 0
+            for header in headers:
+                temp_dict[header].append(row[x])
+                x += 1
+    else:
+        pass
+    return temp_dict
+
+
+def table_information_four(soup, div_id_name) -> dict:
+    """ fourth method for bringing back table information as a dict.
+    works on:
+        SummaryBuildingComponents
+
+    """
+    table = []
+    for x in soup.find_all("div", {"id": div_id_name}):
+        for item in x.find_all("div", {"class": "col"}):
+            for row in x.find_all("tr"):
+                if (
+                    "improvement" not in row.text.lower()
+                    and "computations" not in row.text.lower()
+                ):
+                    cols = row.find_all("td")
+                    cols = [element.text.strip() for element in cols if element]
+                    table.extend(cols)
+                else:
+                    pass
+    it = iter(table)
+    test_dict = dict(zip(it, it))
+    improvement = {
+        key: value
+        for key, value in test_dict.items()
+        if key
+        in [
+            "Year Built",
+            "Structure",
+            "Structure Code",
+            "Total Living Area",
+            "Building Value",
+        ]
+    }
+    computations = {
+        key: value
+        for key, value in test_dict.items()
+        if key.lower()
+        in [
+            "stories",
+            "1st level sq. ft.",
+            "add'l level sq. ft.",
+            "total living area",
+            "total adjusted area",
+        ]
+    }
+    materials = defaultdict(list)
+    for key, value in test_dict.items():
+        if value.lower() in [
+            "foundation",
+            "exterior walls",
+            "roof type",
+            "roof material",
+            "floors",
+            "interior finish",
+            "plumbing",
+            "fireplaces",
+            "heat/ac",
+        ]:
+            materials[value].append(key)
+    return {
+        "improvement": improvement,
+        "computations": computations,
+        "materials": materials,
     }
