@@ -107,8 +107,8 @@ def table_information_one(soup, div_id_name: str = None) -> dict:
                 table.extend(cols)
     it = iter(table)
     test_dict = dict(zip(it, it))
-    if test_dict.get(''):
-        del test_dict['']
+    if test_dict.get(""):
+        del test_dict[""]
     return test_dict
 
 
@@ -170,6 +170,31 @@ def table_information_four(soup, div_id_name) -> dict:
 
     """
     table = []
+    improvement_columns = [
+        "Year Built",
+        "Structure",
+        "Structure Code",
+        "Total Living Area",
+        "Building Value",
+    ]
+    computation_columns = [
+        "stories",
+        "1st level sq. ft.",
+        "add'l level sq. ft.",
+        "total living area",
+        "total adjusted area",
+    ]
+    materials_columns = [
+        "foundation",
+        "exterior walls",
+        "roof type",
+        "roof material",
+        "floors",
+        "interior finish",
+        "plumbing",
+        "fireplaces",
+        "heat/ac",
+    ]
     for x in soup.find_all("div", {"id": div_id_name}):
         for item in x.find_all("div", {"class": "col"}):
             for row in x.find_all("tr"):
@@ -185,43 +210,24 @@ def table_information_four(soup, div_id_name) -> dict:
     it = iter(table)
     test_dict = dict(zip(it, it))
     improvement = {
-        key: value
-        for key, value in test_dict.items()
-        if key
-        in [
-            "Year Built",
-            "Structure",
-            "Structure Code",
-            "Total Living Area",
-            "Building Value",
-        ]
+        key: value for key, value in test_dict.items() if key in improvement_columns
     }
+    if improvement == {}:
+        improvement = {column: "" for column in improvement_columns}
     computations = {
         key: value
         for key, value in test_dict.items()
-        if key.lower()
-        in [
-            "stories",
-            "1st level sq. ft.",
-            "add'l level sq. ft.",
-            "total living area",
-            "total adjusted area",
-        ]
+        if key.lower() in computation_columns
     }
+    if computations == {}:
+        computations = {column: "" for column in computation_columns}
     materials = defaultdict(list)
     for key, value in test_dict.items():
-        if value.lower() in [
-            "foundation",
-            "exterior walls",
-            "roof type",
-            "roof material",
-            "floors",
-            "interior finish",
-            "plumbing",
-            "fireplaces",
-            "heat/ac",
-        ]:
+        if value.lower() in materials_columns:
             materials[value].append(key)
+    if materials == defaultdict(list):
+        for column in materials_columns:
+            materials[column]
     return {
         "improvement": improvement,
         "computations": computations,
