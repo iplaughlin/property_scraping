@@ -26,9 +26,10 @@ def create_sql_connection(host, user, password, database):
         :param db_file: mysql file
         :return: connection object or None
     """
-    database = mysql.connector.connect(
+    connection = mysql.connector.connect(
         host = host,
         user = user,
-        password = password
+        password = password,
+        database = database
         )
-    return database
+    return connection
