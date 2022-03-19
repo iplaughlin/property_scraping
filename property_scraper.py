@@ -23,7 +23,8 @@ from create_connection import create_sql_connection
 def main():
 
     temp_dict = dict()
-    for ppin in range(1, 2):
+    for ppin in range(1, 10001):
+        print(ppin)
         url = f"https://madisonproperty.countygovservices.com/Property/Property/Summary?taxyear=2022&ppin={ppin}"
         resp = requests.get(url)
         time.sleep(0.5)
@@ -43,6 +44,9 @@ def main():
         improvement = building_components.get("improvement")
         computations = building_components.get("computations")
         materials = building_components.get("materials")
+
+        gis_url= f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}"
+
         temp_dict[ppin] = {
             "ppin": ppin,
             "date": str(datetime.datetime.now()),
@@ -55,6 +59,7 @@ def main():
             "improvement": improvement,
             "computations": computations,
             "materials": materials,
+            "gis_url": f"https://isv.kcsgis.com/al.Madison_revenue/?fips={ppin}"
         }
         conn = create_sql_connection(
             user=configs.USER,
@@ -77,16 +82,25 @@ def main():
         tax_values = tuple(tax_values)
         c.execute(configs.TAX_STATEMENT, tax_values)
 
-        tax_history_values = list(tax_history.values()) + date
-        tax_history_values = tuple(tax_history_values)
-        c.execute(configs.TAX_HISTORY_STATEMENT, tax_history_values)
+        for row in zip(*list(tax_history.values())):
+            c.execute(configs.TAX_HISTORY_STATEMENT, row + tuple(date))
+
+        for row in zip(*list(details.values())):
+            c.execute(configs.DETAILS_STATEMENT, row + tuple(date))
 
         improvement_values = list(improvement.values()) + date
-        print(improvement_values)
         improvement_values = tuple(improvement_values)
         c.execute(configs.IMPROVEMENTS_STATEMENT, improvement_values)
 
+        computations_values = list(computations.values()) + date
+        computations_values = tuple(computations_values)
+        c.execute(configs.COMPUTATION_STATEMENT, computations_values)
 
+        for row in zip(*list(materials.values())):
+            c.execute(configs.MATERIALS_STATEMENT, row + tuple(date))
+
+        urls_values = (url, gis_url)+tuple(date)
+        c.execute(configs.URLS_STATEMENT, urls_values)
 #        conn.commit()
 
 
