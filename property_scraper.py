@@ -106,13 +106,13 @@ def main():
 
         for row in zip(*list(materials.values())):
             row_length = len(row)
-            if row_length == max_length and row_length != 0:
-                c.execute(configs.MATERIALS_STATEMENT, row + date)
+            if row_length != 0:
+                c.execute(configs.MATERIALS_STATEMENT, row + tuple(date))
         urls_values = (url, gis_url) + tuple(date)
         c.execute(configs.URLS_STATEMENT, urls_values)
 
 
-#        conn.commit()
+        conn.commit()
 
 
 if __name__ == "__main__":

@@ -150,7 +150,6 @@ def table_information_three(soup, div_id_name) -> dict:
                 rows.append([item for item in re.split("\n|\r", i.text)])
             else:
                 rows.append([item.text for item in i.find_all("td")])
-            # print(repr(i.text))
         headers = [item for item in rows[0] if item]
         for row in rows[1:]:
             row = [item for item in row if item]
@@ -215,8 +214,6 @@ def table_information_four(soup, div_id_name) -> dict:
     }
     if improvement == {}:
         improvement = {column: "" for column in improvement_columns}
-    # for column in improvement_columns:
-    #     del test_dict[column]
     computations = {
         key: value
         for key, value in test_dict.items()
@@ -232,7 +229,6 @@ def table_information_four(soup, div_id_name) -> dict:
         max_length = max([len(item) for item in materials.values()])
     except ValueError:
         max_length = 0
-    print(max_length)
     for column in materials_columns:
         while len(materials[column]) < max_length:
             materials[column] += [""]
