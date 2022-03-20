@@ -227,7 +227,12 @@ def table_information_four(soup, div_id_name) -> dict:
     materials = defaultdict(list)
     for key, value in test_dict.items():
         if value.lower() in materials_columns:
-            materials[value].append(key)
+            materials[value.lower()].append(key)
+    max_length = max([len(item) for item in materials.values()])
+    print(max_length)
+    for column in materials_columns:
+        while len(materials[column]) < max_length:
+            materials[column] += [""]
     if materials == defaultdict(list):
         for column in materials_columns:
             materials[column]
