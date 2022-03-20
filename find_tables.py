@@ -228,7 +228,10 @@ def table_information_four(soup, div_id_name) -> dict:
     for key, value in test_dict.items():
         if value.lower() in materials_columns:
             materials[value.lower()].append(key)
-    max_length = max([len(item) for item in materials.values()])
+    try:
+        max_length = max([len(item) for item in materials.values()])
+    except ValueError:
+        max_length = 0
     print(max_length)
     for column in materials_columns:
         while len(materials[column]) < max_length:
