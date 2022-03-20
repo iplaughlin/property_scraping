@@ -105,6 +105,7 @@ def main():
         c.execute(configs.COMPUTATION_STATEMENT, computations_values)
 
         for row in zip(*list(materials.values())):
+            row_length = len(row)
             if row_length == max_length and row_length != 0:
                 c.execute(configs.MATERIALS_STATEMENT, row + date)
         urls_values = (url, gis_url) + tuple(date)
