@@ -1,5 +1,8 @@
 # project specific
-*configs*
+*sql_configs*
+nohup.out
+errors.txt
+status.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
